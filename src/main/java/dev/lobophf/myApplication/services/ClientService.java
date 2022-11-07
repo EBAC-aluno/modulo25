@@ -12,8 +12,8 @@ public class ClientService implements IClientService{
 	}
 
 	@Override
-	public void save(Client client) {
-				
+	public Boolean save(Client client) {
+				return true;	
 	}
 
 	@Override
@@ -21,5 +21,9 @@ public class ClientService implements IClientService{
 		return clientDao.findByCpf(cpf);
 	}
 
-
+	@Override
+	public void remove(Long cpf) {
+		// TODO Auto-generated method stub
+		
+	}
 }

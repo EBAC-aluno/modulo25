@@ -4,8 +4,10 @@ import dev.lobophf.myApplication.domain.Client;
 
 public interface IClientService{
 
-    void save(Client client);
+    Boolean save(Client client);
 
     Client findByCpf(Long cpf);
+
+    void remove(Long cpf);
 
 }
