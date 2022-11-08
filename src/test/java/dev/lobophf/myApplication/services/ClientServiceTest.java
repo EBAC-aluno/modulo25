@@ -38,13 +38,21 @@ public class ClientServiceTest {
 	}
 
 	@Test
-	public void saveClient(){
-				Boolean isClientSaved = clientService.save(client);
-				Assertions.assertTrue(isClientSaved);
+	public void saveClient() {
+		Boolean isClientSaved = clientService.save(client);
+		Assertions.assertTrue(isClientSaved);
 	}
 
 	@Test
-	public void removeClient(){
-				clientService.remove(client.getCpf());
+	public void removeClient() {
+		clientService.remove(client.getCpf());
 	}
+
+	@Test
+	public void modify() {
+		client.setName("Renata");
+		clientService.modify(client);
+		Assertions.assertEquals("Renata", client.getName());
+	}
+
 }

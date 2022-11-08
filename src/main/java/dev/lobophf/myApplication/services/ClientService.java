@@ -26,4 +26,10 @@ public class ClientService implements IClientService{
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void modify(Client client) {
+		clientDao.modify(client);		// TODO Auto-generated method stub
+		
+	}
 }
