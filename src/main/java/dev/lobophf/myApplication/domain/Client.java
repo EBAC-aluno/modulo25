@@ -1,8 +1,8 @@
 package dev.lobophf.myApplication.domain;
 
-import dev.lobophf.myApplication.dao.Persistente;
+import dev.lobophf.myApplication.dao.Persistence;
 
-public class Client implements Persistente {
+public class Client implements Persistence {
 	
 	private String name;
 	private Long cpf;

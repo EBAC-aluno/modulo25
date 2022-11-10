@@ -32,15 +32,15 @@ public class ClientDao extends GenericDAO<Client, Serializable> implements IClie
 	}
 
 	@Override
-	public Class<Client> getTipoClasse() {
+	public void updateData(Client entity, Client entityCadastrado) {
 		// TODO Auto-generated method stub
-		return null;
+		
 	}
 
 	@Override
-	public void atualiarDados(Client entity, Client entityCadastrado) {
+	public Class<Client> getClassType() {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 
 }

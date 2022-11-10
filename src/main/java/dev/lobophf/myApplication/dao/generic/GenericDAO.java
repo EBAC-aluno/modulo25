@@ -8,29 +8,29 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import anotacao.TipoChave;
-import dev.lobophf.myApplication.dao.Persistente;
-import dev.lobophf.myApplication.exceptions.TipoChaveNaoEncontradaException;
+import annotation.Key;
+import dev.lobophf.myApplication.dao.Persistence;
+import dev.lobophf.myApplication.exceptions.KeyNotFoundException;
 
 
-public abstract class GenericDAO<T extends Persistente, E extends Serializable> implements IGenericDAO<T,E> {
+public abstract class GenericDAO<T extends Persistence, E extends Serializable> implements IGenericDAO<T,E> {
     private SingletonMap singletonMap;
 
-    public abstract Class<T> getTipoClasse();
+    public abstract Class<T> getClassType();
 
-    public abstract void atualiarDados(T entity, T entityCadastrado);
+    public abstract void updateData(T entity, T entityRegistered);
 
     public GenericDAO() {
         this.singletonMap = SingletonMap.getInstance();
     }
 
-    public E getChave(T entity) throws TipoChaveNaoEncontradaException {
+    public E getKey(T entity) throws KeyNotFoundException {
         Field[] fields = entity.getClass().getDeclaredFields();
         E returnValue = null;
         for (Field field : fields) {
-            if (field.isAnnotationPresent(TipoChave.class)) {
-                TipoChave tipoChave = field.getAnnotation(TipoChave.class);
-                String nomeMetodo = tipoChave.value();
+            if (field.isAnnotationPresent(Key.class)) {
+                Key key = field.getAnnotation(Key.class);
+                String nomeMetodo = key.value();
                 try {
                     Method method = entity.getClass().getMethod(nomeMetodo);
                     returnValue = (E) method.invoke(entity);
@@ -38,69 +38,67 @@ public abstract class GenericDAO<T extends Persistente, E extends Serializable> 
                 } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                     //Criar exception de negócio TipoChaveNaoEncontradaException
                     e.printStackTrace();
-                    throw new TipoChaveNaoEncontradaException("Chave principal do objeto " + entity.getClass() + " não encontrada", e);
+                    throw new KeyNotFoundException("Main Key of object " + entity.getClass() + " not found", e);
                 }
             }
         }
         if (returnValue == null) {
-            String msg = "Chave principal do objeto " + entity.getClass() + " não encontrada";
-            System.out.println("**** ERRO ****" + msg);
-            throw new TipoChaveNaoEncontradaException(msg);
+            String msg = "Main object key " + entity.getClass() + " not found";
+            System.out.println("ERROR: " + msg);
+            throw new KeyNotFoundException(msg);
         }
         return null;
     }
 
     @Override
-    public Boolean cadastrar(T entity) throws TipoChaveNaoEncontradaException {
-        //Map<Long, T> mapaInterno = this.map.get(getTipoClasse());
-        Map<E, T> mapaInterno = getMapa();
-        E chave = getChave(entity);
-        if (mapaInterno.containsKey(chave)) {
+    public Boolean register(T entity) throws KeyNotFoundException {
+        Map<E, T> internalMap = getMap();
+        E key = getKey(entity);
+        if (internalMap.containsKey(key)) {
             return false;
         }
 
-        mapaInterno.put(chave, entity);
+        internalMap.put(key, entity);
         return true;
     }
 
-	private Map<E, T> getMapa() {
-		Map<E, T> mapaInterno = (Map<E, T>) this.singletonMap.getMap().get(getTipoClasse());
-		if (mapaInterno == null) {
-			mapaInterno = new HashMap<>();
-			this.singletonMap.getMap().put(getTipoClasse(), mapaInterno);
+	private Map<E, T> getMap() {
+		Map<E, T> internalMap = (Map<E, T>) this.singletonMap.getMap().get(getClassType());
+		if (internalMap == null) {
+			internalMap = new HashMap<>();
+			this.singletonMap.getMap().put(getClassType(), internalMap);
 		}
-		return mapaInterno;
+		return internalMap;
 	}
 
     @Override
-    public void excluir(E valor) {
-        //Map<Long, T> mapaInterno = this.map.get(getTipoClasse());
-        Map<E, T> mapaInterno = getMapa();
-        T objetoCadastrado = mapaInterno.get(valor);
-        if (objetoCadastrado != null) {
-            mapaInterno.remove(valor, objetoCadastrado);
+    public void remove(E valor) {
+        Map<E, T> internalMap = getMap();
+        T registeredObject = internalMap.get(valor);
+        if (registeredObject != null) {
+            internalMap.remove(valor, registeredObject);
         }
     }
 
     @Override
-    public void alterar(T entity) throws TipoChaveNaoEncontradaException {
-        Map<E, T> mapaInterno = getMapa();
-        E chave = getChave(entity);
-        T objetoCadastrado = mapaInterno.get(chave);
-        if (objetoCadastrado != null) {
-            atualiarDados(entity, objetoCadastrado);
+    public void modify(T entity) throws KeyNotFoundException {
+        Map<E, T> internalMap = getMap();
+        E key = getKey(entity);
+        T registeredObject = internalMap.get(key);
+        if (registeredObject != null) {
+            updateData(entity, registeredObject);
         }
     }
 
     @Override
-    public T consultar(E valor) {
-        Map<E, T> mapaInterno = getMapa();
-        return mapaInterno.get(valor);
+    public T search(E valor) {
+        Map<E, T> internalMap = getMap();
+        return internalMap.get(valor);
     }
 
     @Override
-    public Collection<T> buscarTodos() {
-        Map<E, T> mapaInterno = getMapa();
-        return mapaInterno.values();
+    public Collection<T> getAll() {
+        Map<E, T> internalMap = getMap();
+        return internalMap.values();
     }
 }

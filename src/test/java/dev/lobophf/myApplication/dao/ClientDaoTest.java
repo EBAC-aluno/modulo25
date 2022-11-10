@@ -30,7 +30,7 @@ public class ClientDaoTest {
 	}
 
 	@Test
-	public void pesquisarCliente() {
+	public void searchByClient() {
 		Client searchedClient = clientDao.findByCpf(client.getCpf());
 		Assertions.assertNotNull(searchedClient);
 	}
